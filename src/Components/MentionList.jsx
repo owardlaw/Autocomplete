@@ -9,9 +9,7 @@ export default forwardRef((props, ref) => {
 
   const selectItem = index => {
     const item = props.items[index]
-
-    console.log(props)
-
+    
     if (item) {
       props.command({ id: item })
     } else {

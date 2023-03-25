@@ -87,7 +87,6 @@ function Autocomplete(props) {
     setOfflineNotes([]);
   };
 
-
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -117,7 +116,6 @@ function Autocomplete(props) {
     onCreate: ({ editor }) => { 
     }
   })
-
   
   useEffect(() => {
     if (editor && offlineNotes) {
@@ -129,6 +127,11 @@ function Autocomplete(props) {
   // Handle key up 
   const handleKeyDown = useCallback((event) => {
 
+    // Check if the cursor is null
+    if (editor.view.state.selection.$cursor === null) {
+      return;
+    }
+
     const pos = editor.view.state.selection.$cursor.pos;
     const lastChar = editor.view.state.doc.textBetween(pos - 1, pos);
     const secondToLastChar = editor.view.state.doc.textBetween(pos - 2, pos - 1);
@@ -136,7 +139,6 @@ function Autocomplete(props) {
     if ((event.key === "#" || event.key === "@") && lastChar !== " ") {
       editor.commands.insertContent(' ')
     }
-    console.log(pos)
 
     if (event.key === ">" && lastChar === "<" && secondToLastChar !== " ") {
       editor.commands.insertContentAt(pos - 1, ' ')

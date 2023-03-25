@@ -4,7 +4,7 @@ import MentionList from './MentionList.jsx'
 
 const createSuggestion = (list) => ({
 
-  items: ({  query }) => {
+  items: ({ query }) => {
 
     return list.filter(item => item.toLowerCase().startsWith(query.toLowerCase()))
   },
@@ -56,9 +56,14 @@ const createSuggestion = (list) => ({
         return component.ref?.onKeyDown(props)
       },
 
-      onExit: () => {
+      onExit: (item) => {
         popup[0].destroy()
         component.destroy()
+        
+        // If item is not in array and user exits, add it to the array
+        if (item.query !== '') {
+          list.unshift(item.query)
+        }
       },
     }
   },
