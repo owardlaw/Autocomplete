@@ -6,6 +6,8 @@ import Reference from './HandleReference'
 import createSuggestion from './suggestion'
 import React, { useCallback, useState, useEffect } from 'react'
 import './styles.scss'
+import { openDB } from 'idb';
+
 
 const mentions = [
   'Owen Wardlaw',
@@ -28,11 +30,63 @@ const hashtags = [
   'hiking',
 ]
 
+// Define the database and object store names based on the note state
+const dbName = "notes";
+const dbObjectStore = "saved_notes";
 
 
-function Autocomplete() {
+function Autocomplete(props) {
 
-  const [lastAutoChar, setLastAutoChar] = useState(null)
+  const [offlineNotes, setOfflineNotes] = useState([]);
+  const [noteSync, setNoteSync] = useState(false);
+  const [startUpNotes, setStartUpNotes] = useState(false);
+
+  // Retrieve notes at startup
+  useEffect(() => {
+    if (!noteSync) {
+      setNoteSync(true);
+      getNotes();
+    }
+  }, [offlineNotes, noteSync, setNoteSync]);
+
+  // Get the notes associated with the current note state
+  async function getNotes() {
+    const db = await openDB(dbName, 1, {
+      upgrade(db) {
+        db.createObjectStore(dbObjectStore, { keyPath: 'id', autoIncrement: true });
+      },
+    });
+
+    const index = parseInt(props.id);
+    const range = IDBKeyRange.only(index); // Use IDBKeyRange to retrieve the note associated with props.id
+
+    const notes = await db.getAll(dbObjectStore, range); // Pass the range to getAll() method to retrieve the specific note
+
+    if (notes.length > 0) {
+      setOfflineNotes(notes[0].note);
+      return notes[0].note;
+    }
+  }
+
+  // Add a note to the database
+  async function addNote(note) {
+    const db = await openDB(dbName, 1);
+    const tx = db.transaction(dbObjectStore, 'readwrite');
+    const store = tx.objectStore(dbObjectStore);
+    const index = parseInt(props.id); // use index 0 for the record key
+    await store.put({ id: index, note }); // update the existing record or add a new record
+    const notes = await db.getAll(dbObjectStore);
+  }
+
+  // Delete all notes
+  async function deleteNotes() {
+    const db = await openDB(dbName, 1);
+    const tx = db.transaction(dbObjectStore, 'readwrite');
+    const store = tx.objectStore(dbObjectStore);
+    await store.clear();
+    setOfflineNotes([]);
+  };
+
 
   const editor = useEditor({
     extensions: [
@@ -56,11 +110,21 @@ function Autocomplete() {
         suggestion: createSuggestion(references)
       }),
     ],
-    content: `start..`,
+    content: ``,
     onUpdate: ({ editor }) => {
-
+      addNote(editor.getHTML());
     },
+    onCreate: ({ editor }) => { 
+    }
   })
+
+  
+  useEffect(() => {
+    if (editor && offlineNotes) {
+      editor.commands.setContent(offlineNotes);
+      setStartUpNotes(true);
+    }
+  }, [editor, offlineNotes]);
 
   // Handle key up 
   const handleKeyDown = useCallback((event) => {
@@ -69,23 +133,14 @@ function Autocomplete() {
     const lastChar = editor.view.state.doc.textBetween(pos - 1, pos);
     const secondToLastChar = editor.view.state.doc.textBetween(pos - 2, pos - 1);
 
-    if (event.key === "#") {
-      setLastAutoChar("#")
-    } else if (event.key === "@") {
-      setLastAutoChar("@")
-    } else if (event.key === ">" && lastChar === "<") {
-      setLastAutoChar("<>")
-    }
-
-
     if ((event.key === "#" || event.key === "@") && lastChar !== " ") {
       editor.commands.insertContent(' ')
     }
+    console.log(pos)
 
     if (event.key === ">" && lastChar === "<" && secondToLastChar !== " ") {
       editor.commands.insertContentAt(pos - 1, ' ')
       editor.commands.focus(pos + 2)
-      editor.commands.insertContentAt(pos+3, ' ')
     }
 
   }, [editor]);
@@ -105,7 +160,6 @@ function Autocomplete() {
     }
   }, [editor, handleKeyUp]);
 
-
   // hooks for keydown and keyup
   useEffect(() => {
     if (editor && editor.view && editor.view.dom) {
@@ -115,7 +169,6 @@ function Autocomplete() {
       };
     }
   }, [editor, handleKeyDown]);
-
 
 
   return <EditorContent editor={editor} />

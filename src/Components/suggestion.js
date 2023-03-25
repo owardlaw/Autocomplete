@@ -1,12 +1,12 @@
 import { ReactRenderer } from '@tiptap/react'
 import tippy from 'tippy.js'
-
 import MentionList from './MentionList.jsx'
 
 const createSuggestion = (list) => ({
-  items: ({ query }) => {
-    return list
-      .filter(item => item.toLowerCase().startsWith(query.toLowerCase()))
+
+  items: ({  query }) => {
+
+    return list.filter(item => item.toLowerCase().startsWith(query.toLowerCase()))
   },
 
   render: () => {
@@ -37,7 +37,7 @@ const createSuggestion = (list) => ({
 
       onUpdate(props) {
         component.updateProps(props)
-
+        
         if (!props.clientRect) {
           return
         }
@@ -50,14 +50,13 @@ const createSuggestion = (list) => ({
       onKeyDown(props) {
         if (props.event.key === 'Escape') {
           popup[0].hide()
-
           return true
         }
 
         return component.ref?.onKeyDown(props)
       },
 
-      onExit() {
+      onExit: () => {
         popup[0].destroy()
         component.destroy()
       },

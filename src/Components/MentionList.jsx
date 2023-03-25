@@ -5,13 +5,17 @@ import React, {
 import './MentionList.scss'
 
 export default forwardRef((props, ref) => {
-  const [selectedIndex, setSelectedIndex] = useState(0)
+  const [selectedIndex, setSelectedIndex] = useState(0);
 
   const selectItem = index => {
     const item = props.items[index]
 
+    console.log(props)
+
     if (item) {
       props.command({ id: item })
+    } else {
+      props.command({ id: props.query }) // add new item
     }
   }
 
@@ -25,6 +29,7 @@ export default forwardRef((props, ref) => {
 
   const enterHandler = () => {
     selectItem(selectedIndex)
+    console.log(props.items.length);
   }
 
   useEffect(() => setSelectedIndex(0), [props.items])
@@ -63,7 +68,8 @@ export default forwardRef((props, ref) => {
             {item}
           </button>
         ))
-        : <div className="item">No result</div>
+        : <button className="item" onClick={() => selectItem(props.items.length+1)}
+        > Add New </button>
       }
     </div>
   )
