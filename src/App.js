@@ -69,13 +69,14 @@ const App = () => {
     }
   };
 
+
   const renderAutocompletes = () => {
     const autocompletes = [];
     for (let i = offlineNotes - 1; i >= 0; i--) {
       autocompletes.push(
         <div className='note' key={uuidv4()}>
           <Autocomplete id={i.toString()} />
-          <hr />
+          <hr/>
         </div>
       );
     }
@@ -118,7 +119,7 @@ const App = () => {
           Hide Note
         </button>
       </div>
-      <hr />
+      <hr/>
       {renderAutocompletes()}
     </div>
   );

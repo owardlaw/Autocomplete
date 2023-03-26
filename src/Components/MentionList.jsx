@@ -27,7 +27,6 @@ export default forwardRef((props, ref) => {
 
   const enterHandler = () => {
     selectItem(selectedIndex)
-    console.log(props.items.length);
   }
 
   useEffect(() => setSelectedIndex(0), [props.items])
