@@ -109,7 +109,7 @@ const App = () => {
       <br />
       <div className="App-header">
         <div className='title'>
-          <p>#Commands are @, #, and, &lt;&gt; to prompt a autocomplete. </p>
+          <p>Commands are @, #, and, &lt;&gt; to prompt a autocomplete. </p>
           <p>Shift and arrow keys will - or + notes.</p>
         </div>
         <button id="note-buttons" onClick={handleAddNote}>
