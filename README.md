@@ -6,3 +6,5 @@ A TipTap/Prosemirror library that is complete with commmands to prompt autocompl
 - <> will launch a reference menu 
 
 Notes are saved locally offline, and new autocompletes are saved as the user inputs them!
+
+Currently live [here](https://gleaming-semolina-580e93.netlify.app/)!
