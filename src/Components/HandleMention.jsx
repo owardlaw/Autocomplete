@@ -2,9 +2,9 @@ import { Node, mergeAttributes } from '@tiptap/core';
 import { PluginKey } from '@tiptap/pm/state';
 import Suggestion from '@tiptap/suggestion';
 
-const HashtagPluginKey = new PluginKey('Hashtag');
-const Hashtag = Node.create({
-    name: 'Hashtag',
+const MentionPluginKey = new PluginKey('mention');
+const Mention = Node.create({
+    name: 'mention',
     addOptions() {
         return {
             HTMLAttributes: {},
@@ -13,12 +13,11 @@ const Hashtag = Node.create({
                 return `${options.suggestion.char}${(_a = node.attrs.label) !== null && _a !== void 0 ? _a : node.attrs.id}`;
             },
             suggestion: {
-                char: '#',
-                pluginKey: HashtagPluginKey,
+                char: '@',
+                allowSpaces: true,
+                pluginKey: MentionPluginKey,
                 command: ({ editor, range, props }) => {
                     var _a, _b;
-                    // increase range.to by one when the next node is of type "text"
-                    // and starts with a space character
                     const nodeAfter = editor.view.state.selection.$to.nodeAfter;
                     const overrideSpace = (_a = nodeAfter === null || nodeAfter === void 0 ? void 0 : nodeAfter.text) === null || _a === void 0 ? void 0 : _a.startsWith(' ');
                     if (overrideSpace) {
@@ -107,7 +106,7 @@ const Hashtag = Node.create({
     addKeyboardShortcuts() {
         return {
             Backspace: () => this.editor.commands.command(({ tr, state }) => {
-                let isHashtag = false;
+                let isMention = false;
                 const { selection } = state;
                 const { empty, anchor } = selection;
                 if (!empty) {
@@ -115,12 +114,12 @@ const Hashtag = Node.create({
                 }
                 state.doc.nodesBetween(anchor - 1, anchor, (node, pos) => {
                     if (node.type.name === this.name) {
-                        isHashtag = true;
+                        isMention = true;
                         tr.insertText(this.options.suggestion.char || '', pos, pos + node.nodeSize);
                         return false;
                     }
                 });
-                return isHashtag;
+                return isMention;
             }),
         };
     },
@@ -134,4 +133,4 @@ const Hashtag = Node.create({
     },
 });
 
-export { Hashtag, HashtagPluginKey, Hashtag as default };
+export { Mention, MentionPluginKey, Mention as default };

@@ -2,9 +2,9 @@ import { Node, mergeAttributes } from '@tiptap/core';
 import { PluginKey } from '@tiptap/pm/state';
 import Suggestion from '@tiptap/suggestion';
 
-const MentionPluginKey = new PluginKey('mention');
-const Mention = Node.create({
-    name: 'mention',
+const ReferencePluginKey = new PluginKey('Reference');
+const Reference = Node.create({
+    name: 'Reference',
     addOptions() {
         return {
             HTMLAttributes: {},
@@ -13,13 +13,11 @@ const Mention = Node.create({
                 return `${options.suggestion.char}${(_a = node.attrs.label) !== null && _a !== void 0 ? _a : node.attrs.id}`;
             },
             suggestion: {
-                char: '@',
+                char: '<>',
+                pluginKey: ReferencePluginKey,
                 allowSpaces: true,
-                pluginKey: MentionPluginKey,
                 command: ({ editor, range, props }) => {
                     var _a, _b;
-                    // increase range.to by one when the next node is of type "text"
-                    // and starts with a space character
                     const nodeAfter = editor.view.state.selection.$to.nodeAfter;
                     const overrideSpace = (_a = nodeAfter === null || nodeAfter === void 0 ? void 0 : nodeAfter.text) === null || _a === void 0 ? void 0 : _a.startsWith(' ');
                     if (overrideSpace) {
@@ -108,7 +106,7 @@ const Mention = Node.create({
     addKeyboardShortcuts() {
         return {
             Backspace: () => this.editor.commands.command(({ tr, state }) => {
-                let isMention = false;
+                let isReference = false;
                 const { selection } = state;
                 const { empty, anchor } = selection;
                 if (!empty) {
@@ -116,12 +114,12 @@ const Mention = Node.create({
                 }
                 state.doc.nodesBetween(anchor - 1, anchor, (node, pos) => {
                     if (node.type.name === this.name) {
-                        isMention = true;
+                        isReference = true;
                         tr.insertText(this.options.suggestion.char || '', pos, pos + node.nodeSize);
                         return false;
                     }
                 });
-                return isMention;
+                return isReference;
             }),
         };
     },
@@ -135,4 +133,4 @@ const Mention = Node.create({
     },
 });
 
-export { Mention, MentionPluginKey, Mention as default };
+export { Reference, ReferencePluginKey, Reference as default };

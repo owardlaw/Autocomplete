@@ -4,6 +4,7 @@ import MentionList from './MentionList.jsx'
 
 const createSuggestion = (list) => ({
 
+  // Query the current text user is typing
   items: ({ query }) => {
 
     return list.filter(item => item.toLowerCase().startsWith(query.toLowerCase()))

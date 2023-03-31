@@ -2,9 +2,9 @@ import { Node, mergeAttributes } from '@tiptap/core';
 import { PluginKey } from '@tiptap/pm/state';
 import Suggestion from '@tiptap/suggestion';
 
-const ReferencePluginKey = new PluginKey('Reference');
-const Reference = Node.create({
-    name: 'Reference',
+const HashtagPluginKey = new PluginKey('Hashtag');
+const Hashtag = Node.create({
+    name: 'Hashtag',
     addOptions() {
         return {
             HTMLAttributes: {},
@@ -13,13 +13,10 @@ const Reference = Node.create({
                 return `${options.suggestion.char}${(_a = node.attrs.label) !== null && _a !== void 0 ? _a : node.attrs.id}`;
             },
             suggestion: {
-                char: '<>',
-                pluginKey: ReferencePluginKey,
-                allowSpaces: true,
+                char: '#',
+                pluginKey: HashtagPluginKey,
                 command: ({ editor, range, props }) => {
                     var _a, _b;
-                    // increase range.to by one when the next node is of type "text"
-                    // and starts with a space character
                     const nodeAfter = editor.view.state.selection.$to.nodeAfter;
                     const overrideSpace = (_a = nodeAfter === null || nodeAfter === void 0 ? void 0 : nodeAfter.text) === null || _a === void 0 ? void 0 : _a.startsWith(' ');
                     if (overrideSpace) {
@@ -108,7 +105,7 @@ const Reference = Node.create({
     addKeyboardShortcuts() {
         return {
             Backspace: () => this.editor.commands.command(({ tr, state }) => {
-                let isReference = false;
+                let isHashtag = false;
                 const { selection } = state;
                 const { empty, anchor } = selection;
                 if (!empty) {
@@ -116,12 +113,12 @@ const Reference = Node.create({
                 }
                 state.doc.nodesBetween(anchor - 1, anchor, (node, pos) => {
                     if (node.type.name === this.name) {
-                        isReference = true;
+                        isHashtag = true;
                         tr.insertText(this.options.suggestion.char || '', pos, pos + node.nodeSize);
                         return false;
                     }
                 });
-                return isReference;
+                return isHashtag;
             }),
         };
     },
@@ -135,4 +132,4 @@ const Reference = Node.create({
     },
 });
 
-export { Reference, ReferencePluginKey, Reference as default };
+export { Hashtag, HashtagPluginKey, Hashtag as default };
