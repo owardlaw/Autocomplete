@@ -11,8 +11,8 @@ import autocomplete from 'prosemirror-autocomplete'
 
 
 const mentions = [
-  'Owen Wardlaw',
-  'Jacob Cole',
+  'John Doe',
+  'Super Man',
   'Ethan Smith',
   'Mason Jones',
 ]
